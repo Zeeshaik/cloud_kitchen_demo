@@ -1,0 +1,1305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FuelFit Kitchen — Healthy Food Delivered</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@700;800&display=swap');
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  :root {
+    --primary: #22c55e;
+    --primary-dark: #16a34a;
+    --accent: #f97316;
+    --bg: #0a0a0a;
+    --surface: #141414;
+    --surface2: #1e1e1e;
+    --text: #f5f5f5;
+    --text-muted: #a3a3a3;
+    --border: #2a2a2a;
+    --glass: rgba(255,255,255,0.04);
+    --glow-green: 0 0 40px rgba(34,197,94,0.15);
+    --glow-orange: 0 0 40px rgba(249,115,22,0.15);
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    overflow-x: hidden;
+    line-height: 1.6;
+  }
+
+  /* ========== NAVBAR ========== */
+  .navbar {
+    position: fixed; top:0; left:0; right:0; z-index:1000;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 40px;
+    background: rgba(10,10,10,0.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    transition: all 0.3s;
+  }
+  .navbar.scrolled { background: rgba(10,10,10,0.95); padding: 12px 40px; }
+  .logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem; font-weight: 800;
+    background: linear-gradient(135deg, var(--primary), #86efac);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    letter-spacing: -0.5px;
+  }
+  .logo span { color: var(--accent); -webkit-text-fill-color: var(--accent); }
+  .nav-links { display: flex; gap: 32px; align-items: center; }
+  .nav-links a {
+    color: var(--text-muted); text-decoration: none; font-size: 0.9rem;
+    font-weight: 500; transition: color 0.2s; position: relative;
+  }
+  .nav-links a:hover { color: var(--text); }
+  .nav-links a::after {
+    content:''; position:absolute; bottom:-4px; left:0; width:0; height:2px;
+    background: var(--primary); transition: width 0.3s;
+  }
+  .nav-links a:hover::after { width:100%; }
+
+  .cart-btn {
+    background: var(--primary); color: #000; border:none;
+    padding: 10px 24px; border-radius: 50px; font-weight: 600;
+    font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; gap: 8px;
+    transition: all 0.3s; position: relative;
+  }
+  .cart-btn:hover { background: var(--primary-dark); transform: scale(1.05); }
+  .cart-badge {
+    position: absolute; top:-6px; right:-6px;
+    background: var(--accent); color: #fff; font-size: 0.7rem;
+    width:20px; height:20px; border-radius:50%;
+    display: flex; align-items:center; justify-content:center; font-weight:700;
+  }
+
+  /* ========== HERO ========== */
+  .hero {
+    min-height: 100vh; display: flex; align-items: center;
+    padding: 120px 40px 80px;
+    position: relative; overflow: hidden;
+  }
+  .hero-bg-glow {
+    position: absolute; width:600px; height:600px; border-radius:50%;
+    filter: blur(150px); opacity: 0.15; pointer-events:none;
+  }
+  .hero-bg-glow.g1 { background: var(--primary); top:-100px; right:10%; }
+  .hero-bg-glow.g2 { background: var(--accent); bottom:-100px; left:5%; }
+  .hero-content { max-width:1400px; margin:0 auto; width:100%; display:flex; align-items:center; gap:60px; position:relative; z-index:1; }
+  .hero-text { flex:1; }
+  .hero-badge {
+    display:inline-flex; align-items:center; gap:8px;
+    background: rgba(34,197,94,0.1); border:1px solid rgba(34,197,94,0.2);
+    padding: 6px 16px; border-radius:50px; font-size:0.8rem; color:var(--primary);
+    font-weight:600; margin-bottom:24px;
+  }
+  .hero-badge .pulse { width:8px;height:8px;border-radius:50%;background:var(--primary);animation:pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(1.5)} }
+  .hero h1 {
+    font-family:'Playfair Display',serif; font-size:4.5rem; font-weight:800;
+    line-height:1.05; margin-bottom:24px;
+    background:linear-gradient(135deg,#fff 0%,#d4d4d4 100%);
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+  }
+  .hero h1 em {
+    font-style:normal;
+    background:linear-gradient(135deg,var(--primary),#86efac);
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+  }
+  .hero p { font-size:1.15rem; color:var(--text-muted); max-width:500px; margin-bottom:36px; line-height:1.7; }
+  .hero-actions { display:flex; gap:16px; flex-wrap:wrap; }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color:#000; border:none; padding:14px 36px; border-radius:50px;
+    font-size:1rem; font-weight:700; cursor:pointer;
+    transition:all 0.3s; box-shadow: var(--glow-green);
+  }
+  .btn-primary:hover { transform:translateY(-2px); box-shadow: 0 0 60px rgba(34,197,94,0.3); }
+  .btn-outline {
+    background:transparent; color:var(--text); border:1px solid var(--border);
+    padding:14px 36px; border-radius:50px; font-size:1rem; font-weight:600;
+    cursor:pointer; transition:all 0.3s;
+  }
+  .btn-outline:hover { border-color:var(--primary); color:var(--primary); }
+
+  .hero-3d { flex:1; height:500px; position:relative; }
+  .hero-3d canvas { width:100%!important; height:100%!important; }
+
+  .hero-stats {
+    display:flex; gap:48px; margin-top:48px;
+  }
+  .hero-stat .num {
+    font-size:2rem; font-weight:800;
+    background:linear-gradient(135deg,var(--primary),#86efac);
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+  }
+  .hero-stat .label { font-size:0.85rem; color:var(--text-muted); margin-top:4px; }
+
+  /* ========== SECTION COMMON ========== */
+  section { padding: 100px 40px; }
+  .section-header { text-align:center; margin-bottom:64px; }
+  .section-header h2 {
+    font-family:'Playfair Display',serif; font-size:3rem; font-weight:800;
+    margin-bottom:16px;
+  }
+  .section-header p { color:var(--text-muted); font-size:1.1rem; max-width:600px; margin:0 auto; }
+  .section-tag {
+    display:inline-block; font-size:0.8rem; font-weight:700;
+    color:var(--primary); text-transform:uppercase; letter-spacing:2px;
+    margin-bottom:12px;
+  }
+
+  /* ========== CATEGORIES ========== */
+  .categories { background:var(--surface); }
+  .cat-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:24px; max-width:1200px; margin:0 auto; }
+  .cat-card {
+    background:var(--surface2); border:1px solid var(--border);
+    border-radius:20px; padding:32px; text-align:center;
+    cursor:pointer; transition:all 0.4s; position:relative; overflow:hidden;
+  }
+  .cat-card:hover { transform:translateY(-8px); border-color:var(--primary); box-shadow:var(--glow-green); }
+  .cat-icon { font-size:3rem; margin-bottom:16px; display:block; }
+  .cat-card h3 { font-size:1.1rem; font-weight:700; margin-bottom:8px; }
+  .cat-card p { font-size:0.85rem; color:var(--text-muted); }
+  .cat-card .cat-count {
+    position:absolute; top:16px; right:16px;
+    background:rgba(34,197,94,0.1); color:var(--primary);
+    padding:4px 12px; border-radius:50px; font-size:0.75rem; font-weight:600;
+  }
+
+  /* ========== 3D PRODUCTS ========== */
+  .products-section { background:var(--bg); }
+  .products-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:32px; max-width:1200px; margin:0 auto; }
+  .product-card {
+    background: var(--surface);
+    border:1px solid var(--border);
+    border-radius:24px; overflow:hidden;
+    transition:all 0.4s; cursor:pointer; position:relative;
+  }
+  .product-card:hover { transform:translateY(-8px); border-color: rgba(34,197,94,0.4); box-shadow: var(--glow-green); }
+  .product-3d-container {
+    height: 260px; position:relative;
+    background: radial-gradient(circle at 50% 50%, rgba(34,197,94,0.05), transparent);
+  }
+  .product-3d-container canvas { width:100%!important; height:100%!important; }
+  .product-rotate-hint {
+    position:absolute; bottom:12px; left:50%; transform:translateX(-50%);
+    font-size:0.7rem; color:var(--text-muted); background:rgba(0,0,0,0.6);
+    padding:4px 12px; border-radius:50px; pointer-events:none;
+    opacity:0; transition:opacity 0.3s;
+  }
+  .product-card:hover .product-rotate-hint { opacity:1; }
+  .product-info { padding:24px; }
+  .product-tags { display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap; }
+  .product-tag {
+    font-size:0.7rem; font-weight:600; padding:4px 10px;
+    border-radius:50px; text-transform:uppercase; letter-spacing:0.5px;
+  }
+  .tag-vegan { background:rgba(34,197,94,0.1); color:var(--primary); }
+  .tag-protein { background:rgba(249,115,22,0.1); color:var(--accent); }
+  .tag-keto { background:rgba(168,85,247,0.1); color:#a855f7; }
+  .tag-lowcal { background:rgba(56,189,248,0.1); color:#38bdf8; }
+  .product-info h3 { font-size:1.2rem; font-weight:700; margin-bottom:6px; }
+  .product-desc { font-size:0.85rem; color:var(--text-muted); margin-bottom:16px; }
+  .product-meta { display:flex; align-items:center; justify-content:space-between; }
+  .product-nutrition { display:flex; gap:16px; }
+  .product-nutrition span { font-size:0.75rem; color:var(--text-muted); }
+  .product-nutrition span strong { color:var(--text); font-weight:600; }
+  .product-price { font-size:1.4rem; font-weight:800; color:var(--primary); }
+  .product-actions { display:flex; gap:8px; margin-top:16px; }
+  .add-to-cart {
+    flex:1; background:var(--primary); color:#000; border:none;
+    padding:12px; border-radius:12px; font-weight:700; font-size:0.9rem;
+    cursor:pointer; transition:all 0.3s;
+  }
+  .add-to-cart:hover { background:var(--primary-dark); }
+  .add-to-cart.added { background:var(--accent); }
+  .quick-view {
+    width:46px; height:46px; background:var(--surface2); border:1px solid var(--border);
+    border-radius:12px; display:flex; align-items:center; justify-content:center;
+    cursor:pointer; transition:all 0.3s; font-size:1.1rem;
+  }
+  .quick-view:hover { border-color:var(--primary); }
+
+  /* ========== SUBSCRIPTION PLANS ========== */
+  .plans-section { background:var(--surface); }
+  .plans-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:32px; max-width:1100px; margin:0 auto; }
+  .plan-card {
+    background:var(--surface2); border:1px solid var(--border);
+    border-radius:24px; padding:40px 32px; position:relative;
+    transition:all 0.4s; overflow:hidden;
+  }
+  .plan-card.featured {
+    border-color:var(--primary);
+    background: linear-gradient(180deg, rgba(34,197,94,0.08) 0%, var(--surface2) 40%);
+    box-shadow: var(--glow-green);
+    transform: scale(1.05);
+  }
+  .plan-card:hover { transform:translateY(-8px); }
+  .plan-card.featured:hover { transform:scale(1.05) translateY(-8px); }
+  .plan-popular {
+    position:absolute; top:16px; right:16px;
+    background:var(--primary); color:#000; font-size:0.75rem;
+    font-weight:700; padding:4px 12px; border-radius:50px;
+  }
+  .plan-icon { font-size:2.5rem; margin-bottom:20px; display:block; }
+  .plan-card h3 { font-size:1.5rem; font-weight:800; margin-bottom:8px; }
+  .plan-card .plan-tagline { color:var(--text-muted); font-size:0.9rem; margin-bottom:24px; }
+  .plan-price {
+    font-size:3rem; font-weight:900; margin-bottom:4px;
+    background:linear-gradient(135deg,var(--primary),#86efac);
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+  }
+  .plan-price span { font-size:1rem; font-weight:500; -webkit-text-fill-color:var(--text-muted); }
+  .plan-period { font-size:0.85rem; color:var(--text-muted); margin-bottom:28px; }
+  .plan-features { list-style:none; margin-bottom:32px; }
+  .plan-features li {
+    padding:8px 0; font-size:0.9rem; color:var(--text-muted);
+    display:flex; align-items:center; gap:10px;
+    border-bottom:1px solid rgba(255,255,255,0.04);
+  }
+  .plan-features li:last-child { border:none; }
+  .plan-features .check { color:var(--primary); font-weight:700; font-size:1rem; }
+  .plan-cta {
+    width:100%; padding:14px; border-radius:14px; font-size:1rem;
+    font-weight:700; cursor:pointer; transition:all 0.3s; border:none;
+  }
+  .plan-card.featured .plan-cta {
+    background:var(--primary); color:#000;
+  }
+  .plan-card:not(.featured) .plan-cta {
+    background:transparent; color:var(--text); border:1px solid var(--border);
+  }
+  .plan-cta:hover { transform:scale(1.02); }
+
+  /* ========== HOW IT WORKS ========== */
+  .how-section { background:var(--bg); }
+  .how-steps { display:flex; gap:40px; max-width:1100px; margin:0 auto; justify-content:center; }
+  .how-step {
+    flex:1; text-align:center; position:relative;
+    padding:40px 24px; background:var(--surface); border:1px solid var(--border);
+    border-radius:24px; transition:all 0.3s;
+  }
+  .how-step:hover { border-color:var(--primary); box-shadow:var(--glow-green); transform:translateY(-4px); }
+  .how-step .step-num {
+    width:48px; height:48px; border-radius:50%;
+    background:linear-gradient(135deg,var(--primary),var(--primary-dark));
+    color:#000; font-weight:800; font-size:1.2rem;
+    display:flex; align-items:center; justify-content:center;
+    margin:0 auto 20px;
+  }
+  .how-step .step-icon { font-size:2.5rem; margin-bottom:16px; }
+  .how-step h3 { font-size:1.1rem; font-weight:700; margin-bottom:8px; }
+  .how-step p { font-size:0.85rem; color:var(--text-muted); }
+
+  /* ========== TESTIMONIALS ========== */
+  .testimonials { background:var(--surface); }
+  .test-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:24px; max-width:1100px; margin:0 auto; }
+  .test-card {
+    background:var(--surface2); border:1px solid var(--border);
+    border-radius:20px; padding:32px; transition:all 0.3s;
+  }
+  .test-card:hover { border-color:rgba(34,197,94,0.3); }
+  .test-stars { color:var(--accent); font-size:0.9rem; margin-bottom:16px; letter-spacing:2px; }
+  .test-card blockquote { font-size:0.95rem; color:var(--text-muted); line-height:1.7; margin-bottom:20px; font-style:italic; }
+  .test-author { display:flex; align-items:center; gap:12px; }
+  .test-avatar {
+    width:44px; height:44px; border-radius:50%;
+    background:linear-gradient(135deg,var(--primary),var(--accent));
+    display:flex; align-items:center; justify-content:center;
+    font-weight:700; font-size:1rem; color:#000;
+  }
+  .test-author-info .name { font-weight:600; font-size:0.9rem; }
+  .test-author-info .role { font-size:0.8rem; color:var(--text-muted); }
+
+  /* ========== CTA SECTION ========== */
+  .cta-section {
+    background: linear-gradient(135deg, rgba(34,197,94,0.08), rgba(249,115,22,0.05));
+    text-align:center; padding:100px 40px;
+  }
+  .cta-section h2 { font-family:'Playfair Display',serif; font-size:3rem; font-weight:800; margin-bottom:16px; }
+  .cta-section p { color:var(--text-muted); font-size:1.1rem; margin-bottom:36px; max-width:500px; margin-left:auto; margin-right:auto; }
+  .cta-input-group {
+    display:flex; gap:12px; max-width:460px; margin:0 auto;
+  }
+  .cta-input-group input {
+    flex:1; padding:14px 20px; border-radius:14px;
+    background:var(--surface2); border:1px solid var(--border);
+    color:var(--text); font-size:0.95rem; outline:none;
+    transition:border-color 0.3s;
+  }
+  .cta-input-group input:focus { border-color:var(--primary); }
+  .cta-input-group button {
+    background:var(--primary); color:#000; border:none;
+    padding:14px 28px; border-radius:14px; font-weight:700;
+    cursor:pointer; transition:all 0.3s; white-space:nowrap;
+  }
+  .cta-input-group button:hover { background:var(--primary-dark); }
+
+  /* ========== FOOTER ========== */
+  footer {
+    background:var(--surface); border-top:1px solid var(--border);
+    padding:60px 40px 30px;
+  }
+  .footer-grid { display:grid; grid-template-columns:2fr 1fr 1fr 1fr; gap:48px; max-width:1200px; margin:0 auto 40px; }
+  .footer-brand .logo { font-size:1.4rem; margin-bottom:12px; }
+  .footer-brand p { font-size:0.85rem; color:var(--text-muted); max-width:280px; }
+  .footer-col h4 { font-size:0.85rem; font-weight:700; text-transform:uppercase; letter-spacing:1px; margin-bottom:16px; color:var(--text); }
+  .footer-col a { display:block; font-size:0.85rem; color:var(--text-muted); text-decoration:none; padding:4px 0; transition:color 0.2s; }
+  .footer-col a:hover { color:var(--primary); }
+  .footer-bottom { text-align:center; padding-top:24px; border-top:1px solid var(--border); }
+  .footer-bottom p { font-size:0.8rem; color:var(--text-muted); }
+
+  /* ========== CART SIDEBAR ========== */
+  .cart-overlay {
+    position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:2000;
+    opacity:0; pointer-events:none; transition:opacity 0.3s;
+    backdrop-filter:blur(4px);
+  }
+  .cart-overlay.open { opacity:1; pointer-events:all; }
+  .cart-sidebar {
+    position:fixed; top:0; right:-420px; width:420px; height:100vh;
+    background:var(--surface); border-left:1px solid var(--border);
+    z-index:2001; transition:right 0.4s cubic-bezier(0.16,1,0.3,1);
+    display:flex; flex-direction:column;
+  }
+  .cart-sidebar.open { right:0; }
+  .cart-header {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:24px; border-bottom:1px solid var(--border);
+  }
+  .cart-header h3 { font-size:1.2rem; font-weight:700; }
+  .cart-close {
+    width:36px; height:36px; border-radius:50%;
+    background:var(--surface2); border:1px solid var(--border);
+    color:var(--text); font-size:1.2rem; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    transition:all 0.2s;
+  }
+  .cart-close:hover { border-color:var(--primary); }
+  .cart-items { flex:1; overflow-y:auto; padding:16px 24px; }
+  .cart-item {
+    display:flex; gap:16px; padding:16px 0;
+    border-bottom:1px solid var(--border); align-items:center;
+  }
+  .cart-item-visual {
+    width:64px; height:64px; border-radius:12px;
+    background:var(--surface2); display:flex; align-items:center;
+    justify-content:center; font-size:2rem;
+  }
+  .cart-item-details { flex:1; }
+  .cart-item-details h4 { font-size:0.95rem; font-weight:600; }
+  .cart-item-details .cart-item-price { font-size:0.85rem; color:var(--primary); font-weight:600; }
+  .cart-item-qty {
+    display:flex; align-items:center; gap:8px; margin-top:6px;
+  }
+  .cart-item-qty button {
+    width:28px; height:28px; border-radius:8px;
+    background:var(--surface2); border:1px solid var(--border);
+    color:var(--text); cursor:pointer; font-size:0.9rem;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .cart-item-qty span { font-size:0.9rem; font-weight:600; min-width:20px; text-align:center; }
+  .cart-item-remove {
+    color:var(--text-muted); cursor:pointer; font-size:1.1rem;
+    transition:color 0.2s; background:none; border:none;
+  }
+  .cart-item-remove:hover { color:#ef4444; }
+  .cart-empty { text-align:center; padding:48px 0; color:var(--text-muted); }
+  .cart-empty .empty-icon { font-size:3rem; margin-bottom:12px; display:block; }
+  .cart-footer {
+    padding:24px; border-top:1px solid var(--border);
+  }
+  .cart-total {
+    display:flex; justify-content:space-between; margin-bottom:16px;
+    font-size:1.1rem; font-weight:700;
+  }
+  .cart-total span:last-child { color:var(--primary); }
+  .checkout-btn {
+    width:100%; padding:16px; border-radius:14px;
+    background:var(--primary); color:#000; border:none;
+    font-size:1rem; font-weight:700; cursor:pointer;
+    transition:all 0.3s;
+  }
+  .checkout-btn:hover { background:var(--primary-dark); }
+
+  /* ========== TOAST ========== */
+  .toast-container { position:fixed; bottom:24px; right:24px; z-index:3000; display:flex; flex-direction:column; gap:8px; }
+  .toast {
+    background:var(--surface2); border:1px solid var(--primary);
+    padding:12px 20px; border-radius:12px;
+    display:flex; align-items:center; gap:10px;
+    font-size:0.9rem; font-weight:500;
+    animation:slideIn 0.4s ease, fadeOut 0.4s 2.5s ease forwards;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+  }
+  @keyframes slideIn { from{transform:translateX(100%);opacity:0} to{transform:translateX(0);opacity:1} }
+  @keyframes fadeOut { to{transform:translateX(100%);opacity:0} }
+
+  /* ========== ANIMATIONS ========== */
+  .fade-up {
+    opacity:0; transform:translateY(30px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  .fade-up.visible { opacity:1; transform:translateY(0); }
+
+  /* ========== RESPONSIVE ========== */
+  @media(max-width:1024px) {
+    .hero-content { flex-direction:column; text-align:center; }
+    .hero h1 { font-size:3rem; }
+    .hero p { margin:0 auto 36px; }
+    .hero-actions { justify-content:center; }
+    .hero-stats { justify-content:center; }
+    .hero-3d { height:350px; }
+    .products-grid { grid-template-columns:repeat(2,1fr); }
+    .cat-grid { grid-template-columns:repeat(2,1fr); }
+    .plans-grid { grid-template-columns:1fr; max-width:400px; }
+    .plan-card.featured { transform:none; }
+    .plan-card.featured:hover { transform:translateY(-8px); }
+  }
+  @media(max-width:768px) {
+    .navbar { padding:12px 20px; }
+    .nav-links { display:none; }
+    section { padding:60px 20px; }
+    .hero { padding:100px 20px 60px; }
+    .hero h1 { font-size:2.2rem; }
+    .products-grid { grid-template-columns:1fr; }
+    .cat-grid { grid-template-columns:1fr 1fr; }
+    .how-steps { flex-direction:column; }
+    .test-grid { grid-template-columns:1fr; }
+    .footer-grid { grid-template-columns:1fr 1fr; gap:24px; }
+    .cart-sidebar { width:100%; right:-100%; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar" id="navbar">
+  <div class="logo">FuelFit<span>.</span></div>
+  <div class="nav-links">
+    <a href="#menu">Menu</a>
+    <a href="#plans">Meal Plans</a>
+    <a href="#how">How It Works</a>
+    <a href="#reviews">Reviews</a>
+  </div>
+  <button class="cart-btn" onclick="toggleCart()">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+    Cart
+    <span class="cart-badge" id="cartBadge">0</span>
+  </button>
+</nav>
+
+<!-- CART SIDEBAR -->
+<div class="cart-overlay" id="cartOverlay" onclick="toggleCart()"></div>
+<div class="cart-sidebar" id="cartSidebar">
+  <div class="cart-header">
+    <h3>Your Cart</h3>
+    <button class="cart-close" onclick="toggleCart()">✕</button>
+  </div>
+  <div class="cart-items" id="cartItems">
+    <div class="cart-empty">
+      <span class="empty-icon">🛒</span>
+      <p>Your cart is empty</p>
+    </div>
+  </div>
+  <div class="cart-footer">
+    <div class="cart-total">
+      <span>Total</span>
+      <span id="cartTotal">₹0</span>
+    </div>
+    <button class="checkout-btn" onclick="checkout()">Proceed to Checkout</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg-glow g1"></div>
+  <div class="hero-bg-glow g2"></div>
+  <div class="hero-content">
+    <div class="hero-text">
+      <div class="hero-badge"><span class="pulse"></span> Now delivering in your city</div>
+      <h1>Fuel Your <em>Fitness</em> With Every Bite</h1>
+      <p>Premium macro-balanced meals crafted by nutritionists, delivered fresh to your door. No prep, no stress — just gains.</p>
+      <div class="hero-actions">
+        <button class="btn-primary" onclick="document.getElementById('menu').scrollIntoView({behavior:'smooth'})">Explore Menu</button>
+        <button class="btn-outline" onclick="document.getElementById('plans').scrollIntoView({behavior:'smooth'})">View Meal Plans</button>
+      </div>
+      <div class="hero-stats">
+        <div class="hero-stat"><div class="num">12K+</div><div class="label">Happy Customers</div></div>
+        <div class="hero-stat"><div class="num">98%</div><div class="label">Repeat Orders</div></div>
+        <div class="hero-stat"><div class="num">50+</div><div class="label">Menu Items</div></div>
+      </div>
+    </div>
+    <div class="hero-3d" id="hero3d"></div>
+  </div>
+</section>
+
+<!-- CATEGORIES -->
+<section class="categories" id="categories">
+  <div class="section-header fade-up">
+    <div class="section-tag">Categories</div>
+    <h2>What's Your Goal?</h2>
+    <p>Every meal is designed around your fitness goals. Pick a category and fuel up right.</p>
+  </div>
+  <div class="cat-grid fade-up">
+    <div class="cat-card" onclick="filterProducts('muscle')">
+      <span class="cat-count">14 meals</span>
+      <span class="cat-icon">💪</span>
+      <h3>Muscle Building</h3>
+      <p>High protein, calorie-dense meals for serious gains</p>
+    </div>
+    <div class="cat-card" onclick="filterProducts('lean')">
+      <span class="cat-count">18 meals</span>
+      <span class="cat-icon">🔥</span>
+      <h3>Fat Loss</h3>
+      <p>Low calorie, high satiety meals to shred body fat</p>
+    </div>
+    <div class="cat-card" onclick="filterProducts('keto')">
+      <span class="cat-count">10 meals</span>
+      <span class="cat-icon">🥑</span>
+      <h3>Keto Friendly</h3>
+      <p>Ultra low-carb meals to keep you in ketosis</p>
+    </div>
+    <div class="cat-card" onclick="filterProducts('vegan')">
+      <span class="cat-count">12 meals</span>
+      <span class="cat-icon">🌱</span>
+      <h3>Plant Based</h3>
+      <p>100% vegan meals packed with complete nutrition</p>
+    </div>
+  </div>
+</section>
+
+<!-- 3D PRODUCTS -->
+<section class="products-section" id="menu">
+  <div class="section-header fade-up">
+    <div class="section-tag">Our Menu</div>
+    <h2>Meals That Move You</h2>
+    <p>Rotate each meal in 3D to feel the quality before you order. Every dish is macro-tracked.</p>
+  </div>
+  <div class="products-grid fade-up" id="productsGrid"></div>
+</section>
+
+<!-- SUBSCRIPTION PLANS -->
+<section class="plans-section" id="plans">
+  <div class="section-header fade-up">
+    <div class="section-tag">Meal Plans</div>
+    <h2>Subscribe & Save</h2>
+    <p>Commit to your goals with our curated weekly meal plans. Cancel anytime.</p>
+  </div>
+  <div class="plans-grid fade-up">
+    <!-- Lean Plan -->
+    <div class="plan-card">
+      <span class="plan-icon">🔥</span>
+      <h3>Lean Machine</h3>
+      <p class="plan-tagline">Designed for fat loss & definition</p>
+      <div class="plan-price">₹2,999<span>/mo</span></div>
+      <p class="plan-period">Billed monthly · 5 meals/week</p>
+      <ul class="plan-features">
+        <li><span class="check">✓</span> 1,500 cal/day avg</li>
+        <li><span class="check">✓</span> 120g+ protein daily</li>
+        <li><span class="check">✓</span> Custom meal rotation</li>
+        <li><span class="check">✓</span> Weekly check-in with nutritionist</li>
+        <li><span class="check">✓</span> Free delivery</li>
+      </ul>
+      <button class="plan-cta" onclick="showToast('🔥 Lean Machine plan selected!')">Get Started</button>
+    </div>
+
+    <!-- Gain Plan -->
+    <div class="plan-card featured">
+      <span class="plan-popular">Most Popular</span>
+      <span class="plan-icon">💪</span>
+      <h3>Gain Train</h3>
+      <p class="plan-tagline">Bulk clean with zero compromise</p>
+      <div class="plan-price">₹4,499<span>/mo</span></div>
+      <p class="plan-period">Billed monthly · 7 meals/week</p>
+      <ul class="plan-features">
+        <li><span class="check">✓</span> 2,800 cal/day avg</li>
+        <li><span class="check">✓</span> 180g+ protein daily</li>
+        <li><span class="check">✓</span> Pre & post workout meals</li>
+        <li><span class="check">✓</span> Dedicated diet coach</li>
+        <li><span class="check">✓</span> Priority delivery slots</li>
+        <li><span class="check">✓</span> Free supplements sample box</li>
+      </ul>
+      <button class="plan-cta" onclick="showToast('💪 Gain Train plan selected!')">Get Started</button>
+    </div>
+
+    <!-- Balanced Plan -->
+    <div class="plan-card">
+      <span class="plan-icon">⚖️</span>
+      <h3>Balanced Life</h3>
+      <p class="plan-tagline">Maintain fitness without the stress</p>
+      <div class="plan-price">₹3,499<span>/mo</span></div>
+      <p class="plan-period">Billed monthly · 6 meals/week</p>
+      <ul class="plan-features">
+        <li><span class="check">✓</span> 2,200 cal/day avg</li>
+        <li><span class="check">✓</span> Balanced macros</li>
+        <li><span class="check">✓</span> Flexible meal swaps</li>
+        <li><span class="check">✓</span> Monthly body composition review</li>
+        <li><span class="check">✓</span> Free delivery</li>
+      </ul>
+      <button class="plan-cta" onclick="showToast('⚖️ Balanced Life plan selected!')">Get Started</button>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how-section" id="how">
+  <div class="section-header fade-up">
+    <div class="section-tag">How It Works</div>
+    <h2>From Kitchen to Your Door</h2>
+    <p>Four simple steps to fuel your fitness journey.</p>
+  </div>
+  <div class="how-steps fade-up">
+    <div class="how-step">
+      <div class="step-num">1</div>
+      <div class="step-icon">🎯</div>
+      <h3>Set Your Goal</h3>
+      <p>Tell us your fitness goal — lose fat, build muscle, or maintain.</p>
+    </div>
+    <div class="how-step">
+      <div class="step-num">2</div>
+      <div class="step-icon">🍱</div>
+      <h3>Pick Your Meals</h3>
+      <p>Browse our menu or let our AI recommend the perfect meals for you.</p>
+    </div>
+    <div class="how-step">
+      <div class="step-num">3</div>
+      <div class="step-icon">🚀</div>
+      <h3>We Cook & Deliver</h3>
+      <p>Freshly prepared in our cloud kitchen and delivered within 45 mins.</p>
+    </div>
+    <div class="how-step">
+      <div class="step-num">4</div>
+      <div class="step-icon">📈</div>
+      <h3>Track Progress</h3>
+      <p>Monitor your macro intake and body metrics right in the app.</p>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="testimonials" id="reviews">
+  <div class="section-header fade-up">
+    <div class="section-tag">Testimonials</div>
+    <h2>What Our Customers Say</h2>
+    <p>Real results from real people who fuel their fitness with FuelFit.</p>
+  </div>
+  <div class="test-grid fade-up">
+    <div class="test-card">
+      <div class="test-stars">★★★★★</div>
+      <blockquote>"Lost 8 kgs in 2 months without cooking a single meal. The Lean Machine plan is absolute fire. My gym trainer noticed the difference before I did."</blockquote>
+      <div class="test-author">
+        <div class="test-avatar">RP</div>
+        <div class="test-author-info"><div class="name">Ravi Patel</div><div class="role">Lost 8 kg · Lean Machine</div></div>
+      </div>
+    </div>
+    <div class="test-card">
+      <div class="test-stars">★★★★★</div>
+      <blockquote>"As a vegetarian bodybuilder, hitting 160g protein was impossible until FuelFit. The paneer tikka bowl alone has 52g. Game changer."</blockquote>
+      <div class="test-author">
+        <div class="test-avatar">AS</div>
+        <div class="test-author-info"><div class="name">Ananya Sharma</div><div class="role">Gained 5 kg lean · Gain Train</div></div>
+      </div>
+    </div>
+    <div class="test-card">
+      <div class="test-stars">★★★★★</div>
+      <blockquote>"The 3D previews sold me — what you see is actually what you get. No surprises. The food looks AND tastes premium. Worth every rupee."</blockquote>
+      <div class="test-author">
+        <div class="test-avatar">KM</div>
+        <div class="test-author-info"><div class="name">Kabir Mehta</div><div class="role">Regular Customer · 6 months</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div class="section-tag">Get Started</div>
+  <h2>Ready to Transform?</h2>
+  <p>Join 12,000+ fitness enthusiasts who trust FuelFit for their daily nutrition.</p>
+  <div class="cta-input-group">
+    <input type="email" placeholder="Enter your email">
+    <button onclick="showToast('🎉 Welcome! Check your email for a 20% off code.')">Join Free</button>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <div class="logo">FuelFit<span>.</span></div>
+      <p>Premium healthy meals for fitness enthusiasts. Macro-tracked, chef-crafted, delivered fresh.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Menu</h4>
+      <a href="#">Muscle Building</a>
+      <a href="#">Fat Loss</a>
+      <a href="#">Keto Meals</a>
+      <a href="#">Vegan Bowls</a>
+    </div>
+    <div class="footer-col">
+      <h4>Company</h4>
+      <a href="#">About Us</a>
+      <a href="#">Our Chefs</a>
+      <a href="#">Careers</a>
+      <a href="#">Blog</a>
+    </div>
+    <div class="footer-col">
+      <h4>Support</h4>
+      <a href="#">Help Center</a>
+      <a href="#">Delivery Areas</a>
+      <a href="#">Allergen Info</a>
+      <a href="#">Contact Us</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2026 FuelFit Kitchen. All rights reserved. · This is a demo prototype.</p>
+  </div>
+</footer>
+
+<script>
+// ==================== PRODUCT DATA ====================
+const products = [
+  {
+    id:1, name:"Grilled Chicken Power Bowl", price:349, emoji:"🍗",
+    desc:"Herb-grilled chicken breast, quinoa, roasted veggies, and tahini drizzle.",
+    tags:["protein","lowcal"], cal:480, protein:52, carbs:38, fat:12,
+    color:0x22c55e, shape:"bowl"
+  },
+  {
+    id:2, name:"Paneer Tikka Protein Box", price:299, emoji:"🧀",
+    desc:"Smoky tandoori paneer with brown rice, mint chutney, and mixed greens.",
+    tags:["protein","vegan"], cal:520, protein:42, carbs:48, fat:16,
+    color:0xf97316, shape:"box"
+  },
+  {
+    id:3, name:"Salmon Avocado Keto Plate", price:549, emoji:"🐟",
+    desc:"Pan-seared salmon fillet with smashed avocado, asparagus, and lemon butter.",
+    tags:["keto","protein"], cal:580, protein:48, carbs:8, fat:38,
+    color:0xa855f7, shape:"plate"
+  },
+  {
+    id:4, name:"Vegan Buddha Bowl", price:279, emoji:"🥗",
+    desc:"Chickpeas, sweet potato, kale, hummus, and pomegranate over wild rice.",
+    tags:["vegan","lowcal"], cal:420, protein:22, carbs:58, fat:10,
+    color:0x22d3ee, shape:"bowl"
+  },
+  {
+    id:5, name:"Egg White Omelette Wrap", price:199, emoji:"🥚",
+    desc:"6-egg white omelette with spinach, feta, and whole wheat wrap.",
+    tags:["protein","lowcal"], cal:320, protein:38, carbs:28, fat:8,
+    color:0xeab308, shape:"wrap"
+  },
+  {
+    id:6, name:"Protein Acai Smoothie Bowl", price:249, emoji:"🫐",
+    desc:"Acai blended with whey protein, topped with granola, banana, and chia seeds.",
+    tags:["protein","vegan"], cal:380, protein:32, carbs:42, fat:12,
+    color:0xec4899, shape:"bowl"
+  }
+];
+
+const tagMap = {
+  protein:{label:"High Protein",cls:"tag-protein"},
+  vegan:{label:"Plant Based",cls:"tag-vegan"},
+  keto:{label:"Keto",cls:"tag-keto"},
+  lowcal:{label:"Low Cal",cls:"tag-lowcal"}
+};
+
+// ==================== CART STATE ====================
+let cart = [];
+
+function updateCartUI() {
+  const badge = document.getElementById('cartBadge');
+  const itemsEl = document.getElementById('cartItems');
+  const totalEl = document.getElementById('cartTotal');
+  const count = cart.reduce((s,i) => s + i.qty, 0);
+  badge.textContent = count;
+  badge.style.display = count > 0 ? 'flex' : 'none';
+
+  if(cart.length === 0) {
+    itemsEl.innerHTML = '<div class="cart-empty"><span class="empty-icon">🛒</span><p>Your cart is empty</p></div>';
+    totalEl.textContent = '₹0';
+    return;
+  }
+
+  let total = 0;
+  itemsEl.innerHTML = cart.map(item => {
+    total += item.price * item.qty;
+    return `<div class="cart-item">
+      <div class="cart-item-visual">${item.emoji}</div>
+      <div class="cart-item-details">
+        <h4>${item.name}</h4>
+        <div class="cart-item-price">₹${item.price}</div>
+        <div class="cart-item-qty">
+          <button onclick="changeQty(${item.id},-1)">−</button>
+          <span>${item.qty}</span>
+          <button onclick="changeQty(${item.id},1)">+</button>
+        </div>
+      </div>
+      <button class="cart-item-remove" onclick="removeFromCart(${item.id})">✕</button>
+    </div>`;
+  }).join('');
+  totalEl.textContent = '₹' + total.toLocaleString('en-IN');
+}
+
+function addToCart(id) {
+  const product = products.find(p => p.id === id);
+  const existing = cart.find(i => i.id === id);
+  if(existing) { existing.qty++; }
+  else { cart.push({...product, qty:1}); }
+  updateCartUI();
+  showToast(`✅ ${product.name} added to cart`);
+
+  // Animate button
+  const btn = document.querySelector(`[data-cart-btn="${id}"]`);
+  if(btn) {
+    btn.textContent = 'Added!';
+    btn.classList.add('added');
+    setTimeout(() => { btn.textContent = 'Add to Cart'; btn.classList.remove('added'); }, 1200);
+  }
+}
+
+function changeQty(id, delta) {
+  const item = cart.find(i => i.id === id);
+  if(!item) return;
+  item.qty += delta;
+  if(item.qty <= 0) cart = cart.filter(i => i.id !== id);
+  updateCartUI();
+}
+
+function removeFromCart(id) {
+  cart = cart.filter(i => i.id !== id);
+  updateCartUI();
+}
+
+function toggleCart() {
+  document.getElementById('cartOverlay').classList.toggle('open');
+  document.getElementById('cartSidebar').classList.toggle('open');
+}
+
+function checkout() {
+  if(cart.length === 0) { showToast('🛒 Your cart is empty!'); return; }
+  const total = cart.reduce((s,i) => s + i.price * i.qty, 0);
+  showToast(`🎉 Order placed! ₹${total.toLocaleString('en-IN')} — Demo mode`);
+  cart = [];
+  updateCartUI();
+  toggleCart();
+}
+
+function showToast(msg) {
+  const container = document.getElementById('toastContainer');
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.textContent = msg;
+  container.appendChild(toast);
+  setTimeout(() => toast.remove(), 3000);
+}
+
+function filterProducts(tag) {
+  document.getElementById('menu').scrollIntoView({behavior:'smooth'});
+  // Visual feedback on category cards
+  document.querySelectorAll('.cat-card').forEach(c => c.style.borderColor = '');
+  event.currentTarget.style.borderColor = 'var(--primary)';
+}
+
+// ==================== RENDER PRODUCT CARDS ====================
+function renderProducts() {
+  const grid = document.getElementById('productsGrid');
+  grid.innerHTML = products.map(p => `
+    <div class="product-card" data-product="${p.id}">
+      <div class="product-3d-container" id="product3d-${p.id}">
+        <div class="product-rotate-hint">↻ Drag to rotate</div>
+      </div>
+      <div class="product-info">
+        <div class="product-tags">
+          ${p.tags.map(t => `<span class="product-tag ${tagMap[t].cls}">${tagMap[t].label}</span>`).join('')}
+        </div>
+        <h3>${p.name}</h3>
+        <p class="product-desc">${p.desc}</p>
+        <div class="product-meta">
+          <div class="product-nutrition">
+            <span><strong>${p.cal}</strong> kcal</span>
+            <span><strong>${p.protein}g</strong> protein</span>
+            <span><strong>${p.carbs}g</strong> carbs</span>
+          </div>
+          <div class="product-price">₹${p.price}</div>
+        </div>
+        <div class="product-actions">
+          <button class="add-to-cart" data-cart-btn="${p.id}" onclick="addToCart(${p.id})">Add to Cart</button>
+          <button class="quick-view" title="Quick View">👁</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ==================== THREE.JS 3D FOOD MODELS ====================
+function createFoodScene(containerId, product) {
+  const container = document.getElementById(containerId);
+  if(!container) return;
+  const w = container.clientWidth, h = container.clientHeight;
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(40, w/h, 0.1, 100);
+  camera.position.set(0, 2.5, 5);
+  camera.lookAt(0, 0.3, 0);
+
+  const renderer = new THREE.WebGLRenderer({alpha:true, antialias:true});
+  renderer.setSize(w, h);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  container.appendChild(renderer.domElement);
+
+  // Lighting
+  const amb = new THREE.AmbientLight(0xffffff, 0.5);
+  scene.add(amb);
+  const dir = new THREE.DirectionalLight(0xffffff, 0.8);
+  dir.position.set(3, 5, 4);
+  dir.castShadow = true;
+  scene.add(dir);
+  const rim = new THREE.PointLight(product.color, 0.6, 10);
+  rim.position.set(-3, 2, -2);
+  scene.add(rim);
+
+  const group = new THREE.Group();
+
+  // Base plate / bowl
+  const baseGeo = new THREE.CylinderGeometry(1.4, 1.2, 0.2, 64);
+  const baseMat = new THREE.MeshStandardMaterial({
+    color: 0x2a2a2a, metalness: 0.3, roughness: 0.4
+  });
+  const base = new THREE.Mesh(baseGeo, baseMat);
+  base.receiveShadow = true;
+  group.add(base);
+
+  if(product.shape === 'bowl') {
+    // Bowl rim
+    const rimGeo = new THREE.TorusGeometry(1.3, 0.08, 16, 64);
+    const rimMat = new THREE.MeshStandardMaterial({color:0x3a3a3a, metalness:0.5, roughness:0.3});
+    const rimMesh = new THREE.Mesh(rimGeo, rimMat);
+    rimMesh.rotation.x = Math.PI/2;
+    rimMesh.position.y = 0.1;
+    group.add(rimMesh);
+  }
+
+  // Food elements — different per product type
+  const foodColor = new THREE.Color(product.color);
+
+  // Main food mound
+  const moundGeo = new THREE.SphereGeometry(0.9, 32, 32);
+  moundGeo.scale(1, 0.4, 1);
+  const moundMat = new THREE.MeshStandardMaterial({
+    color: foodColor, roughness: 0.7, metalness: 0.05
+  });
+  const mound = new THREE.Mesh(moundGeo, moundMat);
+  mound.position.y = 0.25;
+  mound.castShadow = true;
+  group.add(mound);
+
+  // Protein element
+  const proteinGeo = new THREE.SphereGeometry(0.35, 16, 16);
+  proteinGeo.scale(1.8, 0.5, 1);
+  const proteinMat = new THREE.MeshStandardMaterial({
+    color: new THREE.Color(product.color).multiplyScalar(0.7),
+    roughness: 0.6, metalness: 0.1
+  });
+  const protein = new THREE.Mesh(proteinGeo, proteinMat);
+  protein.position.set(0.2, 0.55, -0.1);
+  protein.rotation.y = 0.3;
+  protein.castShadow = true;
+  group.add(protein);
+
+  // Garnish elements
+  for(let i = 0; i < 8; i++) {
+    const garnGeo = new THREE.SphereGeometry(0.06 + Math.random()*0.06, 8, 8);
+    const garnMat = new THREE.MeshStandardMaterial({
+      color: new THREE.Color().setHSL(Math.random()*0.3 + 0.2, 0.7, 0.5),
+      roughness: 0.8
+    });
+    const garn = new THREE.Mesh(garnGeo, garnMat);
+    const angle = (i/8) * Math.PI * 2;
+    const r = 0.4 + Math.random()*0.4;
+    garn.position.set(Math.cos(angle)*r, 0.45 + Math.random()*0.15, Math.sin(angle)*r);
+    garn.castShadow = true;
+    group.add(garn);
+  }
+
+  // Sauce drizzle
+  const curve = new THREE.CatmullRomCurve3([
+    new THREE.Vector3(-0.5, 0.5, 0.3),
+    new THREE.Vector3(0, 0.55, 0),
+    new THREE.Vector3(0.4, 0.48, -0.2),
+    new THREE.Vector3(0.7, 0.5, 0.1),
+  ]);
+  const tubeGeo = new THREE.TubeGeometry(curve, 32, 0.03, 8, false);
+  const tubeMat = new THREE.MeshStandardMaterial({color:0xfbbf24, roughness:0.4, metalness:0.2});
+  const tube = new THREE.Mesh(tubeGeo, tubeMat);
+  group.add(tube);
+
+  // Steam particles
+  const steamGeo = new THREE.BufferGeometry();
+  const steamPositions = [];
+  const steamCount = 30;
+  for(let i = 0; i < steamCount; i++) {
+    steamPositions.push((Math.random()-0.5)*0.8, 0.6 + Math.random()*1.2, (Math.random()-0.5)*0.8);
+  }
+  steamGeo.setAttribute('position', new THREE.Float32BufferAttribute(steamPositions, 3));
+  const steamMat = new THREE.PointsMaterial({color:0xffffff, size:0.04, transparent:true, opacity:0.3});
+  const steam = new THREE.Points(steamGeo, steamMat);
+  group.add(steam);
+
+  scene.add(group);
+
+  // Mouse interaction
+  let isDragging = false, prevX = 0, rotY = 0, targetRotY = 0, autoRotate = true;
+
+  renderer.domElement.addEventListener('pointerdown', e => {
+    isDragging = true; prevX = e.clientX; autoRotate = false;
+  });
+  window.addEventListener('pointermove', e => {
+    if(!isDragging) return;
+    targetRotY += (e.clientX - prevX) * 0.01;
+    prevX = e.clientX;
+  });
+  window.addEventListener('pointerup', () => {
+    isDragging = false;
+    setTimeout(() => autoRotate = true, 3000);
+  });
+
+  function animate() {
+    requestAnimationFrame(animate);
+    if(autoRotate) targetRotY += 0.005;
+    rotY += (targetRotY - rotY) * 0.1;
+    group.rotation.y = rotY;
+
+    // Animate steam
+    const positions = steam.geometry.attributes.position.array;
+    for(let i = 1; i < positions.length; i += 3) {
+      positions[i] += 0.003;
+      if(positions[i] > 1.8) positions[i] = 0.6;
+    }
+    steam.geometry.attributes.position.needsUpdate = true;
+    steam.material.opacity = 0.15 + Math.sin(Date.now()*0.002)*0.1;
+
+    // Gentle float
+    group.position.y = Math.sin(Date.now()*0.001)*0.05;
+
+    renderer.render(scene, camera);
+  }
+  animate();
+
+  // Resize
+  const ro = new ResizeObserver(() => {
+    const nw = container.clientWidth, nh = container.clientHeight;
+    camera.aspect = nw/nh;
+    camera.updateProjectionMatrix();
+    renderer.setSize(nw, nh);
+  });
+  ro.observe(container);
+}
+
+// ==================== HERO 3D SCENE ====================
+function createHeroScene() {
+  const container = document.getElementById('hero3d');
+  if(!container) return;
+  const w = container.clientWidth, h = container.clientHeight;
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(35, w/h, 0.1, 100);
+  camera.position.set(0, 4, 8);
+  camera.lookAt(0, 0.5, 0);
+
+  const renderer = new THREE.WebGLRenderer({alpha:true, antialias:true});
+  renderer.setSize(w, h);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.shadowMap.enabled = true;
+  container.appendChild(renderer.domElement);
+
+  const amb = new THREE.AmbientLight(0xffffff, 0.4);
+  scene.add(amb);
+  const dir = new THREE.DirectionalLight(0xffffff, 0.9);
+  dir.position.set(5, 8, 5);
+  dir.castShadow = true;
+  scene.add(dir);
+  const green = new THREE.PointLight(0x22c55e, 0.5, 15);
+  green.position.set(-4, 3, 2);
+  scene.add(green);
+  const orange = new THREE.PointLight(0xf97316, 0.4, 15);
+  orange.position.set(4, 2, -3);
+  scene.add(orange);
+
+  const group = new THREE.Group();
+
+  // Large showcase plate
+  const plateGeo = new THREE.CylinderGeometry(2.2, 2, 0.15, 64);
+  const plateMat = new THREE.MeshStandardMaterial({color:0x1e1e1e, metalness:0.4, roughness:0.3});
+  const plate = new THREE.Mesh(plateGeo, plateMat);
+  plate.receiveShadow = true;
+  group.add(plate);
+
+  // Plate rim ring
+  const ringGeo = new THREE.TorusGeometry(2.1, 0.06, 16, 64);
+  const ringMat = new THREE.MeshStandardMaterial({color:0x22c55e, metalness:0.6, roughness:0.2, emissive:0x22c55e, emissiveIntensity:0.2});
+  const ring = new THREE.Mesh(ringGeo, ringMat);
+  ring.rotation.x = Math.PI/2;
+  ring.position.y = 0.08;
+  group.add(ring);
+
+  // Main food — multiple layers
+  const colors = [0x22c55e, 0xf97316, 0xa855f7, 0xeab308, 0xec4899];
+  for(let i = 0; i < 5; i++) {
+    const geo = new THREE.SphereGeometry(0.5 + Math.random()*0.3, 24, 24);
+    geo.scale(1 + Math.random()*0.5, 0.3 + Math.random()*0.2, 1 + Math.random()*0.3);
+    const mat = new THREE.MeshStandardMaterial({
+      color: colors[i], roughness:0.6, metalness:0.1
+    });
+    const mesh = new THREE.Mesh(geo, mat);
+    const angle = (i/5)*Math.PI*2 + Math.random()*0.3;
+    const r = 0.6 + Math.random()*0.5;
+    mesh.position.set(Math.cos(angle)*r, 0.2 + i*0.08, Math.sin(angle)*r);
+    mesh.castShadow = true;
+    group.add(mesh);
+  }
+
+  // Protein centerpiece
+  const centerGeo = new THREE.SphereGeometry(0.6, 32, 32);
+  centerGeo.scale(1.5, 0.6, 1.2);
+  const centerMat = new THREE.MeshStandardMaterial({
+    color:0xd97706, roughness:0.5, metalness:0.15
+  });
+  const center = new THREE.Mesh(centerGeo, centerMat);
+  center.position.y = 0.5;
+  center.castShadow = true;
+  group.add(center);
+
+  // Grill marks
+  for(let i = 0; i < 4; i++) {
+    const markGeo = new THREE.CylinderGeometry(0.02, 0.02, 1.2, 8);
+    const markMat = new THREE.MeshStandardMaterial({color:0x8B4513, roughness:0.9});
+    const mark = new THREE.Mesh(markGeo, markMat);
+    mark.rotation.z = Math.PI/2;
+    mark.position.set(0, 0.72, -0.3 + i*0.2);
+    group.add(mark);
+  }
+
+  // Garnish ring
+  for(let i = 0; i < 20; i++) {
+    const gGeo = new THREE.SphereGeometry(0.05 + Math.random()*0.04, 8, 8);
+    const gMat = new THREE.MeshStandardMaterial({
+      color: new THREE.Color().setHSL(Math.random()*0.4, 0.8, 0.5), roughness:0.8
+    });
+    const g = new THREE.Mesh(gGeo, gMat);
+    const a = (i/20)*Math.PI*2;
+    const rad = 1.5 + Math.random()*0.3;
+    g.position.set(Math.cos(a)*rad, 0.15 + Math.random()*0.1, Math.sin(a)*rad);
+    group.add(g);
+  }
+
+  // Steam
+  const sCnt = 50;
+  const sGeo = new THREE.BufferGeometry();
+  const sPos = [];
+  for(let i = 0; i < sCnt; i++) sPos.push((Math.random()-0.5)*1.5, 0.8 + Math.random()*2, (Math.random()-0.5)*1.5);
+  sGeo.setAttribute('position', new THREE.Float32BufferAttribute(sPos, 3));
+  const sMat = new THREE.PointsMaterial({color:0xffffff, size:0.06, transparent:true, opacity:0.2});
+  const steam = new THREE.Points(sGeo, sMat);
+  group.add(steam);
+
+  // Floating macro badges — using small sphere clusters
+  const badgeColors = [0x22c55e, 0xf97316, 0x38bdf8];
+  const badgePositions = [[-2.5, 1.5, 0],[2.5, 2, -1],[0, 2.8, -2]];
+  badgePositions.forEach((pos, i) => {
+    const bGeo = new THREE.SphereGeometry(0.15, 16, 16);
+    const bMat = new THREE.MeshStandardMaterial({
+      color: badgeColors[i], emissive: badgeColors[i], emissiveIntensity:0.3,
+      transparent:true, opacity:0.8
+    });
+    const b = new THREE.Mesh(bGeo, bMat);
+    b.position.set(...pos);
+    b.userData = {origY: pos[1], phase: i*2};
+    group.add(b);
+  });
+
+  scene.add(group);
+
+  let mouseX = 0, mouseY = 0;
+  window.addEventListener('mousemove', e => {
+    mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
+    mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
+  });
+
+  function animate() {
+    requestAnimationFrame(animate);
+    const t = Date.now() * 0.001;
+    group.rotation.y += 0.003;
+    group.rotation.y += mouseX * 0.001;
+    group.position.y = Math.sin(t * 0.5) * 0.08;
+
+    // Animate steam
+    const pos = steam.geometry.attributes.position.array;
+    for(let i = 1; i < pos.length; i += 3) {
+      pos[i] += 0.005;
+      if(pos[i] > 2.8) pos[i] = 0.8;
+    }
+    steam.geometry.attributes.position.needsUpdate = true;
+
+    // Animate floating badges
+    group.children.forEach(child => {
+      if(child.userData.origY !== undefined) {
+        child.position.y = child.userData.origY + Math.sin(t + child.userData.phase) * 0.3;
+      }
+    });
+
+    renderer.render(scene, camera);
+  }
+  animate();
+
+  const ro = new ResizeObserver(() => {
+    const nw = container.clientWidth, nh = container.clientHeight;
+    camera.aspect = nw/nh;
+    camera.updateProjectionMatrix();
+    renderer.setSize(nw, nh);
+  });
+  ro.observe(container);
+}
+
+// ==================== INIT ====================
+document.addEventListener('DOMContentLoaded', () => {
+  renderProducts();
+  createHeroScene();
+
+  // Create 3D scenes for each product
+  products.forEach(p => {
+    createFoodScene(`product3d-${p.id}`, p);
+  });
+
+  // Scroll animations
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if(entry.isIntersecting) entry.target.classList.add('visible');
+    });
+  }, {threshold: 0.1});
+  document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+  // Navbar scroll effect
+  window.addEventListener('scroll', () => {
+    document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 50);
+  });
+
+  updateCartUI();
+});
+</script>
+</body>
+</html>
